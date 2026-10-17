@@ -1,0 +1,58 @@
+QUICKBITE V3 — CUSTOMER ACCOUNTS + ORIGINAL OPERATOR ADMIN
+======================================================
+
+Your OLD projects remain safe:
+  D:\quickbite\       original backup
+  D:\quickbite-v2\    currently working customer + operator website
+  D:\quickbite-v3\    NEW project, complete customer + operator website
+
+DO THIS IN ORDER:
+
+1) Extract this ZIP in D:\quickbite-v3 and open that folder in VS Code.
+2) Open terminal at PS D:\quickbite-v3> and run:
+     npm install
+3) Copy existing WORKING Neon + admin configuration (never paste secrets in chat):
+     Copy-Item D:\quickbite-v2\.env.local D:\quickbite-v3\.env.local
+4) Generate a NEW random customer session secret in your terminal:
+     node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+   At the END of D:\quickbite-v3\.env.local add:
+     CUSTOMER_SESSION_SECRET="PASTE_NEW_SECRET_HERE"
+   Keep your existing DATABASE_URL and ADMIN_* lines.
+   IMPORTANT: Do not use the ADMIN_SESSION_SECRET value for CUSTOMER_SESSION_SECRET.
+   Rotate any password/secret previously exposed in messages or screenshots.
+5) Neon Console > quickbite-db > SQL Editor:
+   Open DATABASE/CUSTOMER-MIGRATION.SQL from this NEW folder.
+   Copy its complete contents to SQL Editor and click Run.
+   DO NOT rerun schema.sql. DO NOT drop tables.
+6) In VS Code terminal:
+     npm run dev
+   Open:
+     http://localhost:3000              customer website (guest ordering preserved)
+     http://localhost:3000/register     create customer account
+     http://localhost:3000/login        customer sign in
+     http://localhost:3000/account      customer order history (login required)
+     http://localhost:3000/admin/login  EXISTING operator login, unchanged
+     http://localhost:3000/admin        EXISTING protected operator dashboard
+
+TEST:
+  - Register using a made-up name and TEST email; unique password (12+ chars).
+  - Login and place a demo order. It should appear under /account and /admin.
+  - Sign out, confirm /account asks for login; old guest checkout still works.
+  - Footer still shows "Operator login".
+  - Previous demo Order #1 remains safe in Neon and is visible to operator.
+  - Old guest orders don't automatically appear in newly registered accounts.
+    They remain findable by order ID + email through public "My orders" lookup.
+
+SECURITY:
+  .env.local contains passwords: NEVER upload to GitHub, Zip or chat.
+  Customer password is salted+scrypt-hashed in SQL, never plaintext.
+  This is a demo (no email verification, password reset, or real payment).
+  Use fake contact details when demonstrating.
+
+BEFORE VERCEL:
+  Run 'npm run build' and fix any problems.
+  Set these FIVE environment variables on Vercel:
+  DATABASE_URL, ADMIN_EMAIL, ADMIN_PASSWORD, ADMIN_SESSION_SECRET,
+  CUSTOMER_SESSION_SECRET
+  (all private; NO NEXT_PUBLIC_ prefix).
+  Deploy only after testing locally. Read README.md for full notes.
